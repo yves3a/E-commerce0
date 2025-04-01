@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Welcome Section with a more personalized message and design -->
+    <div class="jumbotron text-center bg-primary text-white rounded py-4">
+        <h1 class="display-4">Welcome, {{ request.user.username }}!</h1>
+        <p class="lead">We're glad to have you back. Take a look at your recent orders or browse our products!</p>
+    </div>
+
+    <!-- Display User Orders -->
+    <div class="my-5">
+        <h3 class="section-title mb-4">Your Recent Orders</h3>
+        <div class="list-group">
+            {% if orders %}
+                {% for order in orders %}
+                    {% if order.product %}
+                        <div class="list-group-item border-0 shadow-sm mb-3 rounded-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <!-- Product Image -->
+                                    <div class="order-image-wrapper rounded-3 overflow-hidden">
+                                        {% if order.product.name|lower == "lenovo thinkpad x1 carbon" %}
+                                            <img src="{% static 'product_images/pc1.jpg' %}" class="order-image" alt="{{ order.product.name }}">
+                                        {% elif order.product.name|lower == "macbook pro" %}
+                                            <img src="{% static 'product_images/pc2.jpg' %}" class="order-image" alt="{{ order.product.name }}">
+                                        {% elif order.product.name|lower == "iphone 16" %}
+                                            <img src="{% static 'product_images/pc3.png' %}" class="order-image" alt="{{ order.product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'product_images/default_image.jpg' %}" class="order-image" alt="{{ order.product.name }}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="mb-1">{{ order.product.name }}</h5>
+                                    <p class="text-muted mb-2 small">{{ order.product.description|truncatechars:100 }}</p>
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-4 order-detail">
+                                            <i class="fas fa-box me-1"></i>
+                                            <span class="text-muted small">Quantity:</span>
+                                            <span class="fw-semibold">{{ order.quantity }}</span>
+                                        </span>
+                                        <span class="me-4 order-detail">
+                                            <i class="fas fa-tag me-1"></i>
+                                            <span class="text-muted small">Price:</span>
+                                            <span class="fw-semibold text-primary">${{ order.product.price }}</span>
+                                        </span>
+                                        <span class="order-detail">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <span class="text-muted small">Date:</span>
+                                            <span class="fw-semibold">{{ order.order_date|date:"M d, Y" }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <div class="d-flex gap-2 justify-content-md-end">
+                                        <a href="{% url 'edit-order' order_id=order.id %}" class="btn btn-outline-primary action-btn">
+                                            <i class="fas fa-edit me-2"></i>Edit
+                                        </a>
+                                        <form method="POST" action="{% url 'delete-order' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger action-btn">
+                                                <i class="fas fa-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="list-group-item border-0 shadow-sm mb-3 rounded-3">
+                            <div class="text-muted">
+                                <i class="fas fa-exclamation-circle me-2"></i>Unknown product - Quantity: {{ order.quantity }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 bg-light rounded-3">
+                    <i class="fas fa-shopping-bag mb-3" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                    <p class="text-muted mb-3">You haven't placed any orders yet.</p>
+                    <a href="#available-products" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Display Products Available for Ordering -->
+    <div class="my-5" id="available-products">
+        <h2 class="section-title mb-4">Available Products</h2>
+        <div class="row g-4">
+            {% if products %}
+                {% for product in products %}
+                <div class="col-md-4">
+                    {% include 'product-card.html' with show_order_form=True %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No products available for ordering.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="text-center mt-5">
+        <a href="{% url 'product-list' %}" class="btn btn-outline-info">
+            <i class="fas fa-list me-2"></i>View All Products
+        </a>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .order-image-wrapper {
+        width: 100%;
+        height: 100px;
+        overflow: hidden;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .order-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .list-group-item {
+        transition: all 0.3s ease;
+        padding: 1.25rem;
+    }
+
+    .list-group-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+    }
+
+    .action-btn {
+        border-width: 2px;
+        border-radius: 8px;
+        padding: 0.5rem 1.25rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-outline-primary.action-btn {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-outline-primary.action-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-outline-danger.action-btn {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-outline-danger.action-btn:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .order-detail {
+        padding: 0.5rem 0;
+    }
+
+    .order-detail i {
+        color: var(--primary-color);
+        opacity: 0.8;
+    }
+
+    .fw-semibold {
+        font-weight: 600 !important;
+    }
+
+    .jumbotron {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 15px;
+        padding: 3rem 2rem;
+    }
+
+    .section-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+{% endblock %}

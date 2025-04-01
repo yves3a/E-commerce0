@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <!-- Display the product image -->
+                {% if product.name|lower == "lenovo thinkpad x1 carbon" %}
+                    <img src="{% static 'product_images/pc1.jpg' %}" class="card-img-top img-fluid rounded shadow" alt="{{ product.name }}">
+                {% elif product.name|lower == "macbook pro" %}
+                    <img src="{% static 'product_images/pc2.jpg' %}" class="card-img-top img-fluid rounded shadow" alt="{{ product.name }}">
+                {% elif product.name|lower == "iphone 16" %}
+                    <img src="{% static 'product_images/pc3.png' %}" class="card-img-top img-fluid rounded shadow" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'product_images/default_image.jpg' %}" class="card-img-top img-fluid rounded shadow" alt="{{ product.name }}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">{{ product.name }}</h2>
+                    <div class="mb-4">
+                        <span class="badge bg-primary">{{ product.category.name }}</span>
+                    </div>
+                    <p class="card-text mb-4">{{ product.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-primary mb-0">${{ product.price }}</h3>
+                        <span class="badge {% if product.stock_quantity > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if product.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
+                        </span>
+                    </div>
+
+                    {% if product.stock_quantity > 0 %}
+                    <form method="POST" action="{% url 'make-order' %}" class="mt-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <div class="form-group mb-3">
+                            <label for="quantity" class="form-label">Quantity:</label>
+                            <input type="number" name="quantity" id="quantity" class="form-control" min="1" max="{{ product.stock_quantity }}" value="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>Order Now
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>This product is currently out of stock.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

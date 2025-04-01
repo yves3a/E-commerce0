@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="section-title">Our Products</h1>
+        <p class="section-subtitle">Discover our premium selection of high-quality products</p>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-section mb-5">
+        <div class="search-tabs">
+            <a href="#" data-tab="all" class="search-tab {% if not request.GET.tab or request.GET.tab == 'all' %}active{% endif %}">All Products</a>
+            <a href="#" data-tab="new" class="search-tab {% if request.GET.tab == 'new' %}active{% endif %}">New Arrivals</a>
+            <a href="#" data-tab="featured" class="search-tab {% if request.GET.tab == 'featured' %}active{% endif %}">Featured</a>
+            <a href="#" data-tab="sale" class="search-tab {% if request.GET.tab == 'sale' %}active{% endif %}">On Sale</a>
+        </div>
+        <form class="search-form mb-4">
+            <div class="search-input-group">
+                <input type="text" name="search" class="search-input" placeholder="Search for products..." value="{{ request.GET.search|default:'' }}">
+                
+                <button type="submit" class="btn btn-primary search-button">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+                <select name="category" class="category-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}" {% if category.name == current_category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid">
+        <div class="loading-spinner"></div>
+        <div class="row g-4">
+            {% for product in products %}
+                <div class="col-md-4">
+                    {% include 'product-card.html' with show_order_form=False %}
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-4">
+                        <div class="no-products">
+                            <i class="fas fa-box-open fa-5x mb-3"></i>
+                            <h3>No Products Found</h3>
+                            <p class="text-muted">Try adjusting your search criteria or browse all products.</p>
+                            <a href="{% url 'product-list' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-sync-alt me-2"></i>Reset Filters
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .search-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+
+    .search-tab {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .search-tab.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .search-tab:hover {
+        color: var(--primary-color);
+        background: rgba(37, 99, 235, 0.1);
+    }
+
+    .search-input-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .category-select {
+        width: 200px;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+    }
+
+    .category-select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-button {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 120px;
+    }
+
+    .loading-spinner {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    .loading-spinner::after {
+        content: '';
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .products-grid {
+        position: relative;
+        min-height: 200px;
+    }
+
+    @media (max-width: 768px) {
+        .search-input-group {
+            flex-direction: column;
+        }
+
+        .category-select, .search-button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.querySelector('.search-form');
+        const searchTabs = document.querySelectorAll('.search-tab');
+        let currentTab = 'all';
+
+        // Handle form submission
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            updateProducts();
+        });
+
+        // Handle tab clicks
+        searchTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                searchTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.getAttribute('data-tab');
+                updateProducts();
+            });
+        });
+
+        // Function to update products
+        function updateProducts() {
+            const searchQuery = searchForm.querySelector('.search-input').value;
+            const category = searchForm.querySelector('.category-select').value;
+            
+            // Build the URL with search parameters
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', searchQuery);
+            url.searchParams.set('category', category);
+            url.searchParams.set('tab', currentTab);
+            
+            // Update the URL and reload the page
+            window.location.href = url.toString();
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

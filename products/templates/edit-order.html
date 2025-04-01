@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Order - Premium Store{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <h2 class="section-title h4 mb-4">Edit Order #{{ order.id }}</h2>
+            
+            <form method="POST" action="{% url 'edit-order' order_id=order.id %}" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="mb-4">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="text-danger">*</span>
+                        {% endif %}
+                    </label>
+                    
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0">
+                            {% if field.name == 'quantity' %}
+                                <i class="fas fa-hashtag text-muted"></i>
+                            {% elif field.name == 'product' %}
+                                <i class="fas fa-box text-muted"></i>
+                            {% else %}
+                                <i class="fas fa-info text-muted"></i>
+                            {% endif %}
+                        </span>
+                        {% render_field field class="form-control border-start-0" %}
+                    </div>
+                    
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Update Order
+                    </button>
+                    <a href="{% url 'user-dashboard' %}" class="btn-custom btn-secondary-custom">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .input-group-text {
+        border-radius: 8px 0 0 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .border-start-0 {
+        border-left: 0;
+        border-radius: 0 8px 8px 0;
+    }
+</style>
+{% endblock %}
+{% endblock %}

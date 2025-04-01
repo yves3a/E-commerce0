@@ -1,0 +1,128 @@
+{% load static %}  <!-- Load static files at the top -->
+
+<div class="product-card card h-100 border-0 shadow-sm hover-shadow">
+    <div class="product-image-wrapper position-relative">
+        {% if product.name|lower == "lenovo thinkpad x1 carbon" %}
+            <img src="{% static 'product_images/pc1.jpg' %}" class="card-img-top product-image" alt="{{ product.name }}">
+        {% elif product.name|lower == "macbook pro" %}
+            <img src="{% static 'product_images/pc2.jpg' %}" class="card-img-top product-image" alt="{{ product.name }}">
+        {% elif product.name|lower == "iphone 16" %}
+            <img src="{% static 'product_images/pc3.png' %}" class="card-img-top product-image" alt="{{ product.name }}">
+        {% else %}
+            <img src="{% static 'product_images/default_image.jpg' %}" class="card-img-top product-image" alt="{{ product.name }}">
+        {% endif %}
+        <div class="product-overlay">
+            <span class="badge bg-primary position-absolute top-0 end-0 m-3">
+                {% if product.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title product-title">{{ product.name }}</h5>
+        <p class="card-text text-muted product-description">{{ product.description }}</p>
+        <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="product-price h4 mb-0">{{ product.price }} USD</span>
+                <span class="text-muted small">Stock: {{ product.stock_quantity }}</span>
+            </div>
+            {% if show_order_form %}
+                <form method="POST" action="{% url 'make-order' %}" class="order-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-hashtag"></i>
+                        </span>
+                        <input type="number" 
+                               name="quantity" 
+                               min="1" 
+                               max="{{ product.stock_quantity }}" 
+                               value="1" 
+                               class="form-control bg-light border-0" 
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 order-button">
+                        <i class="fas fa-shopping-cart me-2"></i>Order Now
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'product-details' id=product.id %}" class="btn btn-primary w-100 view-button">
+                    <i class="fas fa-eye me-2"></i>View Details
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image-wrapper {
+        height: 200px;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+
+    .product-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .product-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .order-button, .view-button {
+        background: var(--primary-color);
+        border: none;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .order-button:hover, .view-button:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .input-group-text, .form-control {
+        padding: 0.75rem;
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - Premium Store{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="text-center mb-4">
+                <div class="profile-avatar mb-4">
+                    <i class="fas fa-user-circle" style="font-size: 5rem; color: var(--primary-color);"></i>
+                </div>
+                <h2 class="section-title mb-2">{{ user.username }}</h2>
+                <p class="section-subtitle">{{ user.role|default:"Customer" }}</p>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-item mb-3">
+                    <label class="form-label text-muted">Email</label>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-envelope me-2" style="color: var(--primary-color);"></i>
+                        <span>{{ user.email|default:"Not provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item mb-3">
+                    <label class="form-label text-muted">First Name</label>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user me-2" style="color: var(--primary-color);"></i>
+                        <span>{{ user.first_name|default:"Not provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item mb-3">
+                    <label class="form-label text-muted">Last Name</label>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user me-2" style="color: var(--primary-color);"></i>
+                        <span>{{ user.last_name|default:"Not provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item mb-3">
+                    <label class="form-label text-muted">Member Since</label>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar me-2" style="color: var(--primary-color);"></i>
+                        <span>{{ user.date_joined|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="#" class="btn-custom btn-secondary-custom w-100">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <h3 class="section-title h4 mb-4">Recent Orders</h3>
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.order_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{{ order.status|lower }}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>${{ order.order_total }}</td>
+                                <td>
+                                    <a href="{% url 'order-detail' order_id=order.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-shopping-bag mb-3" style="font-size: 3rem; color: var(--text-secondary);"></i>
+                    <p class="text-muted">No orders yet</p>
+                    <a href="{% url 'user-dashboard' %}" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-gradient);
+        border-radius: 50%;
+    }
+
+    .info-item label {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .bg-pending {
+        background-color: var(--warning-color);
+    }
+
+    .bg-completed {
+        background-color: var(--success-color);
+    }
+
+    .bg-cancelled {
+        background-color: #ef4444;
+    }
+</style>
+{% endblock %}
+{% endblock %}

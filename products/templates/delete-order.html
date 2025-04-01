@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Are you sure you want to delete this order?</h2>
+  
+  <p>Order ID: {{ order.id }}</p>
+  <p>Product Name: {{ order.product_name }}</p>
+  <p>Quantity: {{ order.quantity }}</p>
+  
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Delete Order</button>
+  </form>
+  
+  <a href="{% url 'user-dashboard' %}" class="btn btn-secondary">Cancel</a>
+{% endblock %}

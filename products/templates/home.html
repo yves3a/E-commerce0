@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products Page{% endblock %}
+
+{% block header %}
+<!-- No header content to ensure no extra text above the image -->
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Remove default margins and paddings from body and html */
+    body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Full-screen container for the image and text */
+    .products-page {
+        margin: 0;
+        padding: 0;
+        width: 100vw; /* Full viewport width */
+        height: 100vh; /* Full viewport height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    /* Style the image to cover the entire screen and go all the way to the top */
+    .products-page img {
+        width: 100vw; /* Full width */
+        height: 100vh; /* Full height */
+        object-fit: cover; /* Cover the entire area without distortion */
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1; /* Place the image behind the text */
+    }
+
+    /* Center the text over the image */
+    .text-overlay {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #1a73e8;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.5); /* Slight background to improve readability */
+    border-radius: 8px;
+    width: 40%; /* Decreased width of the text block */
+}
+
+
+    h2, h3 {
+        margin: 8px 0;
+        color: #1a73e8;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .orders-info, .products-info {
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="products-page">
+    <img src="{% static 'path_to_your_image.png' %}" alt="Background Image">
+
+    <!-- Text Overlay in Center of the Image -->
+    <div class="text-overlay">
+        <h2>Hello, {{ request.user.username }}</h2>
+        <h3>Your Orders</h3>
+        <ul class="orders-info">
+            {% for order in orders %}
+                {% if order.product %}
+                    <li>{{ order.product.name }} - Quantity: {{ order.quantity }}</li>
+                {% else %}
+                    <li>Unknown product - Quantity: {{ order.quantity }}</li>
+                {% endif %}
+            {% empty %}
+                <li>You have no orders.</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Products</h3>
+        <ul class="products-info">
+            {% for product in products %}
+                <li>
+                    {{ product.name }} - {{ product.price }} USD
+                    <form method="POST" action="{% url 'make-order' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <input type="number" name="quantity" min="1" value="1" required>
+                        <button type="submit" class="btn btn-primary">Order Now</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'product-list' %}">View All Products</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }} - Premium Store{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Order #{{ order.id }}</h3>
+            <span class="badge bg-{{ order.status|lower }}">{{ order.status }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-muted mb-3">Order Details</h5>
+                    <p><strong>Date:</strong> {{ order.order_date|date:"F j, Y, g:i a" }}</p>
+                    <p><strong>Status:</strong> {{ order.status }}</p>
+                    <p><strong>Total:</strong> ${{ order.order_total }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-muted mb-3">Customer Information</h5>
+                    <p><strong>Name:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
+                    <p><strong>Email:</strong> {{ order.user.email }}</p>
+                </div>
+            </div>
+
+            <h5 class="text-muted mb-3">Product Details</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ order.product.name }}</td>
+                            <td>${{ order.product.price }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td class="text-end">${{ order.order_total }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-end">
+            <a href="{% url 'edit-order' order_id=order.id %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit me-2"></i>Edit Order
+            </a>
+            <a href="{% url 'user-dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .bg-pending {
+        background-color: var(--warning-color);
+    }
+
+    .bg-processed {
+        background-color: var(--info-color);
+    }
+
+    .bg-shipped {
+        background-color: var(--primary-color);
+    }
+
+    .bg-delivered {
+        background-color: var(--success-color);
+    }
+
+    .bg-cancelled {
+        background-color: var(--danger-color);
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+{% endblock %} 
